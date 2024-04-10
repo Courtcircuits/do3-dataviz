@@ -297,3 +297,5 @@ Chaque question appelle à une représentation différente des données.
 et tentez d'y répondre par un graphique.  
 Vous prendrez garde à bien exposer la question, le sous-ensemble des données utilisées,
 et justifierez la représentation choisie.
+
+

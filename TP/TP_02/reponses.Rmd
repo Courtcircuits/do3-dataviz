@@ -1,0 +1,157 @@
+---
+title: "TP 2 - Variables qualitatives"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+# TP 2 - Variables qualitatives
+
+## Box office
+### Diagramme en barres avec `geom_col()`
+```{r load-data-set}
+boxoffice <- data.frame(
+country = c("USA", "France", "UK", "Germany", "New-Zeland", "Japan", "Italy", "Switzerland", "Belgium"),
+number = c(59, 42, 10, 5, 3, 1, 13, 3, 1)
+)
+```
+
+```{r barplot}
+library(ggplot2)
+
+ggplot(boxoffice, aes(x = country, y = number)) + geom_col()
+```
+
+### Ordonnancement des facteurs
+On souhaite maintenant tracer le même graphique mais en ordonnant les pays par ordre décroissant du nombre de films produits à l'aide de la fonction `fct_reorder()` du package `forcats`.
+
+```{r order}
+library(forcats)
+
+ggplot(boxoffice, aes(x = fct_reorder(country, number), y = number)) + geom_col()
+```
+    À faire: Reprenez et améliorez le graphique précédent, de telle sorte à le rendre “publiable”. Décrivez en une phrase le jeu de données, afin que votre document soit auto-sufisant.
+
+```{r publication}
+ggplot(boxoffice, aes(x = fct_reorder(country, number), y = number)) + 
+  geom_col(fill = "skyblue") +
+  labs(title = "Nombre de films produits par pays",
+       x = "Pays",
+       y = "Nombre de films") +
+  theme_minimal()
+```
+
+## Pinguouins
+
+```{r load-penguins}
+library(palmerpenguins)
+penguins_nomissing <- na.omit(penguins)
+head(penguins_nomissing)
+```
+
+À faire: Décrivez l’expérience statistique associée à ce graphique:
+
+- à quelle question tente-t-on de répondre ?
+  - **Réponse**: On cherche à savoir combien de pinguouins de chaque espèce sont présents dans le jeu de données.
+- quels sont les individus ?
+  - **Réponse**: Les individus sont les pinguouins.
+- quelle est la population ? l’échantillon ?
+  - **Réponse**: La population est l'ensemble des pinguouins de la planète, l'échantillon est le jeu de données `penguins_nomissing` qui correspond à une partie de la population des pengouins du monde.
+- quelle est la variable ? quelles sont ses modalités ?
+  - **Réponse**: La variable est l'espèce de pinguouin, les modalités sont l'espèce de pengouin, sont île, les dimensions de son bec, sa maase, son sexe, son âge et son envergure.
+
+### Comptage
+  À faire: Exécutez et interprétez les commandes suivantes. Combien y-a-t-il de pingouins Adelie dans ce jeu de données ? Et de pingouins Gentoo et Chinstrap ?
+
+```{r count}
+penguins_nomissing$species
+penguins_nomissing$species == "Adelie"
+sum(penguins_nomissing$species == "Adelie")
+sum(penguins_nomissing$species == "Gentoo")
+sum(penguins_nomissing$species == "Chinstrap")
+```
+Il y a donc 146 pingouins Adelie, 119 pingouins Gentoo et 68 pingouins Chinstrap.
+
+### Graphique "artisanal"
+
+> À faire: En utilisant les mêmes fonctions que pour le jeu de données précédent, faire un diagramme en barres représentant le nombre d’individus par espèce dans l’archipel.
+
+```{r artisanal}
+nb_adelie <- sum(penguins_nomissing$species == "Adelie")
+nb_gentoo <- sum(penguins_nomissing$species == "Gentoo")
+nb_chinstrap <- sum(penguins_nomissing$species == "Chinstrap")
+data_species <- data.frame(
+species = c("Adelie", "Gentoo", "Chinstrap"),
+number = c(nb_adelie, nb_gentoo, nb_chinstrap)
+)
+ggplot(data_species, aes(x = fct_reorder(species, number), y = number)) + geom_col()
+```
+
+### Diagramme en barres avec `geom_bar()`
+> À faire: A l’aide du squelette ci-dessous, reproduire le graphique précédent, en repartant directement du jeu de données initial.
+
+```{r barplot-penguins}
+ggplot(penguins_nomissing, aes(x = fct_relevel(species, "Chinstrap", "Gentoo", "Adelie"))) + geom_bar() + ylab(NULL)
+```
+
+```{r barplot-penguins-publishable}
+ggplot(penguins_nomissing, aes(x = fct_relevel(species, "Chinstrap", "Gentoo", "Adelie"))) + 
+  geom_bar(fill = "skyblue") + 
+  labs(title = "Nombre de pingouins par espèce",
+       x = "Espèce",
+       y = "Nombre de pingouins") +
+  theme_minimal()
+```
+### Ajout d'information
+
+> À faire: A l’aide du squelette ci-dessous, représentez le nombre d’individus par espèce et par sexe dans un même graphique.
+
+```{r barplot-penguins-2}
+gender <- factor(penguins_nomissing$sex)
+ggplot(penguins_nomissing, aes(x = fct_relevel(species, "Chinstrap", "Gentoo", "Adelie"), fill = gender)) + geom_bar(position = "dodge") + ylab(NULL)
+```
+> À faire: Faire varier la position des barres à l’aide du squelette ci-dessous.
+
+```{r barplot-penguins-publishable-2}
+ggplot(penguins_nomissing, aes(x = fct_relevel(species, "Chinstrap", "Gentoo", "Adelie"), fill = gender)) + geom_bar(position = "dodge") +  ylab(NULL) +
+  labs(title = "Nombre de pingouins par espèce et par sexe",
+       x = "Espèce",
+       y = "Nombre de pingouins") +
+  theme_minimal()
+```
+
+## Parlement
+
+> À faire: Téléchargez les données, puis importez les dans R à l’aide de la fonction read_xlsx de la librairie readxl. Prenez garde au type de chaque colonne.
+Décrivez brièvement les données (taille, variables, …).
+
+```{r load-parlement}
+library(readxl)
+parlement <- read_xlsx(path = "../../data/parlement.xlsx", col_types = c("text", "text", "text", "numeric", "text", "text", "text", "guess", "numeric", "text"))
+head(parlement)
+```
+
+```{r head-parlement}
+parliament_sample <- subset(parlement, Country == "France" & Year == 1946 & NOTES == "Constitutional Assembly")
+head(parliament_sample)
+```
+### Assemblée constituante
+> À faire: Tracez un diagramme en barres représentant la proportions de femmes dans l’assemblée constituante de la quatrième république française.
+Utilisez-vous des barres côtes à côtes ou empilées ? Justifiez.
+
+```{r barplot-parlement}
+parliament_sample$`% Of Women in Chamber`
+nb_men <- data.frame(
+gender = c("Femme", "Homme"),
+percentage = c(parliament_sample$`% Of Women in Chamber`, 1 - parliament_sample$`% Of Women in Chamber`)
+)
+
+
+ggplot(nb_men, aes(x = gender, y = percentage))  + geom_col(fill = "skyblue") + ylab("Pourcentage") + theme_minimal()
+```
+
+> Dessiner un camembert représentant la même information avec `ggforce`.
+
+```{r piechart-parlement}
+library(ggforce)
+
+ggplot(nb_men, aes(x = gender, y = percentage)) + geom_arc_bar(width = 0.5) + stat_arc_bar() + coord_polar() + theme_void()
+```

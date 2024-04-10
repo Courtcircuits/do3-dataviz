@@ -1,0 +1,74 @@
+---
+title: "TP 1.1 - Introduction à `R Markdown` - Réponses"
+author: "Tristan-Mihai Radulescu"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Les poissons du Lez
+
+On décrit la population et l'échantillonage suivant.
+
+```{r poissons-experience}
+set.seed(1234)
+lez <- c(rep("rouge", 2000),
+          rep("bleu", 3000),
+          rep("vert", 5000))
+
+n_sample <- 100
+
+sample <- sample(lez,
+                n_sample,
+                replace = FALSE)
+```
+
+Maintenant, nous allons calculer la fréquence empirique de chaque couleur de poissons en utilisant `table`.
+
+```{r poissons-resultats}
+res <- table(sample)
+res
+```
+
+Et tracer le résultat.
+
+## Avec 10 poissons
+
+```{r poissons-resultats-tracé}
+barplot(res)
+```
+
+```{r poissons-sample-10}
+sample_10 <- sample(lez,
+                    10,
+                    replace = FALSE)
+```
+
+```{r poissons-resultats-10}
+res_10 <- table(sample_10)
+res_10
+````
+
+```{r poissons-resultats-tracé-10}
+barplot(res_10)
+```
+
+
+## Avec 1000 poissons
+
+```{r poissons-sample-1000}
+sample_1000 <- sample(lez,
+                    1000,
+                    replace = FALSE)
+```
+
+```{r poissons-resultats-1000}
+res_1000 <- table(sample_1000)
+res_1000
+````
+
+```{r poissons-resultats-tracé-1000}
+barplot(res_1000)
+
+```
+
+On voit sur ce dernier graphique que la fréquence de couleur des poissons est plus proche de la population réelle.

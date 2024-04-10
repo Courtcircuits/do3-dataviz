@@ -1,0 +1,79 @@
+---
+title: "TP 1.2 - Introduction à `R markdown` et `ggplot2`"
+author: "Tristan-Mihai Radulescu"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+## Initialisation de ggplot2
+```{r load-ggplot2} 
+library(ggplot2)
+```
+## Initialisation de here
+```{r load-here}
+library(here)
+```
+On charge les données dans le fichier `read.csv`.
+```{r load-data}
+temps_average <- read.csv(file = here("data", "temp_average.csv"))
+```
+On ne garde que les températures à Montpellier.
+```{r filter-data}
+tmps_mt <- subset(temps_average, city == "Montpellier")
+```
+On souhaite ensuite afficher les premières lignes du tableau de données avec la fonction `head`.
+```{r head-data}
+head(tmps_mt)
+```
+Maintenant, on va tracer un petit graphique avec `ggplot2` !
+```{r plot-data}
+ggplot(temps_average, aes(x = day_of_year, y = temperature, color = city)) +
+    geom_line(linewidth = 1) + 
+    labs(title = "Température moyenne par jour de l'année", 
+            x = "Jour de l'année", 
+            y = "Température moyenne (C)",
+            color = "Villes") +
+    theme(plot.background = element_rect(fill = "green"))
+
+```
+On peut aussi compter le nombre de villes étudiées, l'étendue des températures et le nombre de jours.
+```{r summary-data}
+summary(temps_average)
+```
+```{r dimensions}
+dim(temps_average)
+```
+L'unité de mesure des températures est en degrés Celsius. On peut aussi afficher les températures en Fahrenheit.
+```{r fahrenheit}
+temps_average$temperature_f <- temps_average$temperature * 9/5 + 32
+head(temps_average)
+```
+À l'aide de la formule suivante : $F = \frac{9}{5} \times C + 32$, on peut convertir les températures en degrés Fahrenheit.
+
+## Données: statistiques de base.
+**Question  :  Quelle est la température moyenne sur l’année à Montpellier ? Quel jour fait-il, en moyenne, le plus chaud à Montpellier ? Le plus froid ?**
+
+### Température moyenne
+```{r mean-temp-mtp}
+mean(tmps_mt$temperature)
+```
+
+### Jour le plus chaud
+```{r hottest-day}
+tmps_mt[which.max(tmps_mt$temperature),]
+as.Date(tmps_mt[which.max(tmps_mt$temperature),]$day_of_year, origin = "2019-01-01")
+```
+
+### Jour le plus froid
+
+```{r coldest-day}
+tmps_mt[tmps_mt$temperature == min(tmps_mt$temperature),]
+as.Date(tmps_mt[tmps_mt$temperature == min(tmps_mt$temperature),]$day_of_year, origin = "2019-01-01")
+```
+
+## Donnez la formulation statistique assoiée au graphique choisi (question. individu, population, échantillon, variable mesurée).
+- **Question** : Quelle est la température moyenne sur l'année à Montpellier ?
+- **Individu**: Jour de l'année
+- **Population** : Tous les jours de l'année associés à la température moyenne
+- **Échantillon** : Les jours de l'année 2019 à Montpellier
+- **Variable mesurée** : Température moyenne en degrés Celsius (variable quantitative continue)
+
