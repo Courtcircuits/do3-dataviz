@@ -1,0 +1,97 @@
+---
+title: TP 3 - Variables quantitatives
+date: "`r Sys.Date()`"
+output: pdf_document
+author: "Tristan Radulescu"
+---
+# TP 3 - Variables quantitatives
+## Nombre d'enfants
+> On cherche à répondre à la question : “Les couples pacsés ont-ils plus d’enfants de moins de 25 ans que les couples mariés en France en 2017 ?” Définissez les individus, la population, et la variable mesurée, en précisant son type et ses modalités.
+```{r load-data-couples}
+library(readr)
+couples <- read_csv(file = "../../data/fam.csv")
+head(couples)
+```
+Les individus sont les couples mariés ou pacsés en France en 2017. La population est l'ensemble des couples mariés ou pacsés en France en 2017. La variable mesurée est le nombre d'enfants de moins de 25 ans. C'est une variable quantitative discrète.
+
+## Formatage
+> Tracez, sur un même graphique, les polygones des fréquences du nombre d’enfants associés à chaque situation maritale. Justifiez le choix de la représentation.
+
+```{r polygone-frequences}
+library(tidyr)
+couples_traites <- pivot_longer(data = couples, cols = c("0","1","2","3","4"), names_to = "nb_enfants_par_couple", values_to = "nb_couples")
+head(couples_traites)
+
+
+library(ggplot2)
+ggplot(data = couples_traites, aes(x = nb_enfants_par_couple, y = nb_couples/Total, color = Situation)) +
+  geom_line(mapping = aes(group = Situation)) +
+  geom_point() +
+  labs(title = "Polygones des fréquences du nombre d'enfants associés à chaque situation maritale",
+       x = "Nombre d'enfants",
+       y = "Nombre de couples") +
+  theme_minimal()
+```
+
+## Expéditions sur l'Everest
+
+```{r load-data-everest}
+climbers <- read_csv(file = "../../data/members.csv")
+
+head(climbers)
+```
+
+Le dataset `members` contient 21 colonnes comme le rôle du membre d'expédition, le nom du pic gravit, son âge, son pays de citoyenneté, etc. Ce sont des variables qualitatives mais aussi quantitatives. Par conte elles sont toutes des variables discrètes.
+
+### Age des membres d'une expédition réussie
+> On se pose la question suivante : “Comment se répartit l’âge des membres d’une expédition réussie vers le Mont Everest ?” Décrivez l’expérience statistique (individu, population, échantillon, variable mesurée, …). Sélectionnez dans le tableau uniquement les lignes répondant à ces critères, et dont l’âge n’est pas manquant. Représentez ces données sous la forme d’un histogramme. Justifiez le choix de la largeur des classes. Représentez ces même données sous la forme d’une boite à moustache (boxplot). Laquelle de ces représentations est la plus informative ? Justifiez. Que pouvez-vous dire sur l’âge des membres d’une expédition réussie vers le Mont Everest ?
+
+```{r age-expedition}
+library(dplyr)
+climbers_reussis <- climbers %>%
+  filter(peak_name == "Everest" & success == "TRUE" & !is.na(age))
+
+ggplot(data = climbers_reussis, aes(x = age)) +
+  geom_histogram(binwidth = 5, fill = "blue", color = "black") +
+  labs(title = "Histogramme de l'âge des membres d'une expédition réussie vers l'Everest",
+       x = "age",
+       y = "Nombre de membres") +
+  theme_minimal()
+```
+
+```{r boxplot-age}
+ggplot(data = climbers_reussis, aes(x = "", y = age)) +
+  geom_boxplot(fill = "lightblue", color = "black") +
+  labs(title = "Boite à moustache de l'âge des membres d'une expédition réussie vers l'Everest",
+       x = "",
+       y = "age") +
+  theme_minimal()
+```
+
+Le boxplot n'est pas informatif car la population de l'échantillon est trop grande.
+Quelqu'un a gravit l'Everest à l'âge de 80 ans!!! C'est impressionnant.
+
+
+### Age en fonction des années d'expédition
+
+> En reprenant le même jeu de données (expéditions réussies vers le Mont Everest), on se pose la question suivante : “L’âge des membres d’une expédition réussie vers le Mont Everest change-t-il au cours du temps ?” Pour répondre à cette question, reprenez le jeu de données de la section précédente, et représentez-le sous forme de boxplots, un par année. Interprétez.
+
+```{r boxplot-age-annee}
+head(climbers_reussis$year)
+ggplot(climbers_reussis, aes(x=year, group = year, y = age)) +
+  geom_boxplot()
+```
+On peut voir que les écarts d'âges pour les expéditions réussies vers l'Everest augmentent avec le temps. Cela peut être dû à l'augmentation du nombre de personnes qui tentent l'ascension de l'Everest.
+
+### Age des membres d'une expédition réussie ou non
+> On se pose la question suivante : “Y-a-t-il une différence d’âge entre les membres d’une expédition réussie, et ceux d’une expédition qui a échouée, avec ou sans oxygène ?” Décrivez l’expérience statistique. Sélectionnez dans le tableau uniquement les lignes répondant à ces critères, et dont l’âge n’est pas manquant. Représentez ces même données sous la forme de boites à moustaches (boxplot). Il devrait y avoir en tout 4 boîtes, distinguées par des positions (en x) et des facettes. Pour créer et renommer les facettes, vous pourrez utiliser la commande suivante:
+
+```{r boxplot-age-expedition}
+climbers_reussis_ou_non <- climbers %>%
+  filter(!is.na(age))
+
+ggplot(climbers_reussis_ou_non, aes(x = "", y = age)) +
+  geom_boxplot() +
+   facet_wrap(success ~ .,
+             labeller = as_labeller(c(`TRUE` = "Succès", `FALSE` = "Echec")))
+```
