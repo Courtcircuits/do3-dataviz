@@ -1,0 +1,78 @@
+---
+title: TP 4 - Shiny
+date: "`r Sys.Date()`"
+output: pdf_document
+author: "Tristan Radulescu"
+---
+## Chargement des données
+
+```{r load-libs, include=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(palmerpenguins)
+```
+```{r}
+penguins <- na.omit(penguins)
+knitr::kable(head(penguins))
+```
+## Longueur des ailes
+> On se pose la question : "Les différentes espèces de pingouins ont-elles des longueurs d'ailes différentes ?"
+> Formalisez l'expérience statistique.
+> Proposez un graphique pouvant répondre à la question, s'appuyant sur des histogrammes.
+
+Nous allons comparer les longueurs des ailes des différentes espèces de pingouins en faisant la moyenne des longueurs des ailes pour chaque espèce. Nous allons ensuite comparer ces moyennes pour voir si elles sont différentes à l'aide d'un histogramme.
+
+```{r}
+average_wing_length <- penguins %>%
+  group_by(species) %>%
+  summarise(mean_wing_length = mean(flipper_length_mm))
+
+ggplot(average_wing_length, aes(x = species, y = mean_wing_length)) +
+  geom_bar(stat = "identity")
+```
+
+On voit sur cet histogramme que les différentes espèces de pingouins ont des longueurs d'ailes différentes, en moyenne : les Adélie ont les plus petites ailes, les Gentoo les plus grandes et les Chinstrap sont entre les deux bien que les Adélie aient sensiblement la même envergure.
+
+```{r histo}
+ggplot(penguins, aes(x = flipper_length_mm, fill = species)) +
+  geom_histogram(position = "dodge", bins = 30)
+```
+
+Grâce `l'histogramme ci-dessus, on peut voir que les longueurs d'ailes des différentes espèces de pingouins suivent une distribution normale, avec des moyennes différentes.
+
+> Proposez une autre représentation, à l’aide de boxplots.
+
+```{r boxplot}
+ggplot(penguins, aes(x = species, y = flipper_length_mm, fill = species)) +
+  geom_boxplot()
+```
+
+> Pouvez-vous inclure l’information du sexe des individus dans la comparaison ? Quel graphique (histogramme ou boxplot) s’y prête le mieux ?
+
+Des boxplots sont plus adaptés pour comparer les longueurs d'ailes des différentes espèces de pingouins en fonction du sexe, sur un même graphique. Sur un histogramme cela serait plus difficile à lire.
+
+```{r boxplot-sex}
+ggplot(penguins, aes(x = species, y = flipper_length_mm, fill = sex)) +
+  geom_boxplot()
+```
+
+## Dimension du bec
+> On se pose la questions : "Les pinguoins avec un bec plus longs ont-ils un bec plus large ?"
+> Représentez la largeur du bec en fonction de la longueur du bec comme un nuage de points (en mélangeant toutes les espèces). Voyez-vous une tendance se dessiner ? Pour aider à la lecture, vous pourrez ajouter une droite de régression.
+
+```{r}
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+> Reproduisez le graphique, mais avec des couleurs différentes pour chaque espèce. Que pouvez-vous dire de la tendance au sein de chacune des trois espèces ?
+
+```{r}
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+## Shiny
